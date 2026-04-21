@@ -3,47 +3,46 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Invoice\StoreInvoiceRequest;
+use App\Http\Resources\InvoiceResource;
+use App\Services\InvoiceService;
+use Illuminate\Http\JsonResponse;
 
 class InvoiceController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
+    public function __construct(
+        protected InvoiceService $invoiceService
+    ) {
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function index(): JsonResponse
     {
-        //
+        $invoices = $this->invoiceService->list(auth()->user()->tenant_id);
+
+        return response()->json([
+            'data' => InvoiceResource::collection($invoices),
+        ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function store(StoreInvoiceRequest $request): JsonResponse
     {
-        //
+        $invoice = $this->invoiceService->create(
+            auth()->user()->tenant_id,
+            $request->validated()
+        );
+
+        return response()->json([
+            'message' => 'Invoice created successfully.',
+            'data' => new InvoiceResource($invoice),
+        ], 201);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function show(int $id): JsonResponse
     {
-        //
-    }
+        $invoice = $this->invoiceService->findOrFail($id, auth()->user()->tenant_id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return response()->json([
+            'data' => new InvoiceResource($invoice),
+        ]);
     }
 }
