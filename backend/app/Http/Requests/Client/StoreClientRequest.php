@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Client;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreClientRequest extends FormRequest
@@ -12,7 +11,7 @@ class StoreClientRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +22,12 @@ class StoreClientRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'billing_address' => ['nullable', 'string'],
+            'company_name' => ['nullable', 'string', 'max:255'],
+            'tax_number' => ['nullable', 'string', 'max:100'],
         ];
     }
 }
