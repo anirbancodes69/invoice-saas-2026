@@ -1,0 +1,38 @@
+services:
+
+  app:
+    build:
+      context: ./docker/backend
+    container_name: invoice_app
+    restart: unless-stopped
+    volumes:
+      - ./backend:/var/www/
+    depends_on:
+      - mysql
+
+  nginx:
+    image: nginx
+    container_name: invoice_server
+    restart: unless-stopped
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./backend:/var/www/
+    ports:
+      - "8000:80"
+    depends_on:
+      - app
+    
+  mysql:
+    image: mysql:8
+    container_name: invoice_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: invoice
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
