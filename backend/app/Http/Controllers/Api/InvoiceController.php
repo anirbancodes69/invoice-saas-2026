@@ -12,8 +12,7 @@ class InvoiceController extends Controller
 {
     public function __construct(
         protected InvoiceService $invoiceService
-    ) {
-    }
+    ) {}
 
     public function index(): JsonResponse
     {
@@ -42,6 +41,30 @@ class InvoiceController extends Controller
         $invoice = $this->invoiceService->findOrFail($id, auth()->user()->tenant_id);
 
         return response()->json([
+            'data' => new InvoiceResource($invoice),
+        ]);
+    }
+
+    public function send(int $id): JsonResponse
+    {
+        $invoice = $this->invoiceService->findOrFail($id, auth()->user()->tenant_id);
+
+        $invoice = $this->invoiceService->markAsSent($invoice);
+
+        return response()->json([
+            'message' => 'Invoice sent successfully.',
+            'data' => new InvoiceResource($invoice),
+        ]);
+    }
+
+    public function view(int $id): JsonResponse
+    {
+        $invoice = $this->invoiceService->findOrFail($id, auth()->user()->tenant_id);
+
+        $invoice = $this->invoiceService->markAsViewed($invoice);
+
+        return response()->json([
+            'message' => 'Invoice viewed.',
             'data' => new InvoiceResource($invoice),
         ]);
     }

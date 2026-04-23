@@ -12,8 +12,7 @@ class InvoiceService
 {
     public function __construct(
         protected InvoiceRepository $invoiceRepository
-    ) {
-    }
+    ) {}
 
     public function list(int $tenantId)
     {
@@ -71,5 +70,38 @@ class InvoiceService
     protected function generateInvoiceNumber(): string
     {
         return 'INV-' . now()->format('YmdHis') . '-' . random_int(100, 999);
+    }
+
+    public function markAsSent(Invoice $invoice): Invoice
+    {
+        $invoice->update([
+            'status' => \App\Enums\InvoiceStatus::SENT->value,
+            'sent_at' => now(),
+        ]);
+
+        return $invoice->refresh();
+    }
+
+    public function markAsViewed(Invoice $invoice): Invoice
+    {
+        if (!$invoice->viewed_at) {
+            $invoice->update([
+                'status' => \App\Enums\InvoiceStatus::VIEWED->value,
+                'viewed_at' => now(),
+            ]);
+        }
+
+        return $invoice->refresh();
+    }
+
+    public function markAsPaid(Invoice $invoice): Invoice
+    {
+        $invoice->update([
+            'status' => \App\Enums\InvoiceStatus::PAID->value,
+            'paid_at' => now(),
+            'paid_amount' => $invoice->total_amount,
+        ]);
+
+        return $invoice->refresh();
     }
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ClientController;
 use App\Http\Controllers\Api\InvoiceController;
+use App\Http\Controllers\Api\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
@@ -20,4 +21,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('invoices', InvoiceController::class)->only([
         'index', 'store', 'show'
     ]);
+
+    // NEW
+    Route::post('/invoices/{invoice}/send', [InvoiceController::class, 'send']);
+    Route::post('/invoices/{invoice}/view', [InvoiceController::class, 'view']);
+    Route::post('/invoices/{invoice}/pay', [PaymentController::class, 'store']);
 });
