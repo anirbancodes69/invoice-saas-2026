@@ -13,8 +13,7 @@ class PaymentController extends Controller
     public function __construct(
         protected PaymentService $paymentService,
         protected InvoiceService $invoiceService
-    ) {
-    }
+    ) {}
 
     public function store(Request $request, int $invoiceId): JsonResponse
     {
@@ -32,6 +31,27 @@ class PaymentController extends Controller
         return response()->json([
             'message' => 'Payment recorded successfully.',
             'data' => $payment,
+        ]);
+    }
+
+    public function createOrder(int $invoiceId)
+    {
+        $invoice = $this->invoiceService->findOrFail(
+            $invoiceId,
+            auth()->user()->tenant_id
+        );
+
+        $razorpay = app(\App\Services\RazorpayService::class);
+
+        $order = $razorpay->createOrder([
+            'amount' => $invoice->total_amount,
+            'receipt' => $invoice->invoice_number,
+            'invoice_number' => $invoice->invoice_number,
+        ]);
+
+        return response()->json([
+            'order' => $order->toArray(),
+            'invoice' => $invoice,
         ]);
     }
 }
